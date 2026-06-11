@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과학 계산기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .calculator {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            width: 350px;
+        }
+
+        .display-container {
+            margin-bottom: 20px;
+        }
+
+        .previous {
+            color: #888;
+            font-size: 1em;
+            text-align: right;
+            min-height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .display {
+            background: #0f3460;
+            color: #00ff88;
+            font-size: 2.5em;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: right;
+            min-height: 70px;
+            border: 2px solid #00ff88;
+            word-wrap: break-word;
+            word-break: break-all;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .number {
+            background: #0f3460;
+            border: 2px solid #00ff88;
+        }
+
+        .operator {
+            background: #e94560;
+        }
+
+        .operator:hover {
+            background: #d63551;
+        }
+
+        .equals {
+            background: #00ff88;
+            color: #1a1a2e;
+            grid-column: span 2;
+        }
+
+        .equals:hover {
+            background: #00dd77;
+        }
+
+        .clear {
+            background: #ff6b6b;
+            grid-column: span 2;
+        }
+
+        .clear:hover {
+            background: #ee5a52;
+        }
+
+        .function {
+            background: #f39c12;
+            font-size: 0.9em;
+            padding: 10px;
+        }
+
+        .function:hover {
+            background: #e67e22;
+        }
+
+        .history {
+            background: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            width: 250px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .history h3 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .history-item {
+            background: #0f3460;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            border-left: 3px solid #00ff88;
+            color: #00ff88;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #1a4d6d;
+            transform: translateX(5px);
+        }
+
+        .history-item-result {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .clear-history {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .calculator, .history {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <div class="display-container">
+                <div class="previous" id="previous"></div>
+                <div class="display" id="display">0</div>
+            </div>
+
+            <div class="buttons">
+                <!-- Row 1 -->
+                <button class="clear" onclick="clearDisplay()">C</button>
+                <button class="function" onclick="appendFunction('Math.sqrt')">√</button>
+                <button class="function" onclick="appendFunction('Math.pow', 2)">x²</button>
+                <button class="operator" onclick="appendOperator('÷')">÷</button>
+
+                <!-- Row 2 -->
+                <button class="number" onclick="appendNumber('7')">7</button>
+                <button class="number" onclick="appendNumber('8')">8</button>
+                <button class="number" onclick="appendNumber('9')">9</button>
+                <button class="operator" onclick="appendOperator('×')">×</button>
+
+                <!-- Row 3 -->
+                <button class="number" onclick="appendNumber('4')">4</button>
+                <button class="number" onclick="appendNumber('5')">5</button>
+                <button class="number" onclick="appendNumber('6')">6</button>
+                <button class="operator" onclick="appendOperator('-')">-</button>
+
+                <!-- Row 4 -->
+                <button class="number" onclick="appendNumber('1')">1</button>
+                <button class="number" onclick="appendNumber('2')">2</button>
+                <button class="number" onclick="appendNumber('3')">3</button>
+                <button class="operator" onclick="appendOperator('+')">+</button>
+
+                <!-- Row 5 -->
+                <button class="number" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+                <button class="number" onclick="appendNumber('.')">.</button>
+                <button class="equals" onclick="calculate()">=</button>
+
+                <!-- Row 6 -->
+                <button class="function" onclick="appendFunction('Math.sin')">sin</button>
+                <button class="function" onclick="appendFunction('Math.cos')">cos</button>
+                <button class="function" onclick="appendFunction('Math.tan')">tan</button>
+                <button class="operator" onclick="appendOperator('%')">%</button>
+
+                <!-- Row 7 -->
+                <button class="function" onclick="toggleSign()">±</button>
+                <button class="function" onclick="appendFunction('Math.log10')">log</button>
+                <button class="function" onclick="appendFunction('Math.abs')">|x|</button>
+                <button class="operator" onclick="appendOperator('^')">^</button>
+            </div>
+        </div>
+
+        <div class="history">
+            <h3>계산 기록</h3>
+            <div id="historyList"></div>
+            <button class="clear-history" onclick="clearHistory()">기록 삭제</button>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let previous = document.getElementById('previous');
+        let historyList = document.getElementById('historyList');
+        let currentValue = '';
+        let previousValue = '';
+        let operator = '';
+        let history = [];
+
+        function appendNumber(num) {
+            if (num === '.' && currentValue.includes('.')) return;
+            currentValue += num;
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (!currentValue && !previousValue) return;
+            if (currentValue) {
+                if (previousValue && operator) {
+                    calculate();
+                } else {
+                    previousValue = currentValue;
+                }
+                currentValue = '';
+            }
+            operator = op;
+            updateDisplay();
+        }
+
+        function appendFunction(func, param) {
+            if (!currentValue) return;
+            try {
+                let value = parseFloat(currentValue);
+                let result;
+
+                if (func === 'Math.pow') {
+                    result = Math.pow(value, param);
+                } else {
+                    let funcCall = eval(`Math.${func.split('.')[1]}`);
+                    if (func.includes('sin') || func.includes('cos') || func.includes('tan')) {
+                        result = funcCall(value * Math.PI / 180);
+                    } else {
+                        result = funcCall(value);
+                    }
+                }
+
+                currentValue = String(Math.round(result * 100000000) / 100000000);
+                updateDisplay();
+            } catch (e) {
+                display.textContent = '오류';
+            }
+        }
+
+        function toggleSign() {
+            if (currentValue) {
+                currentValue = String(parseFloat(currentValue) * -1);
+                updateDisplay();
+            }
+        }
+
+        function clearDisplay() {
+            currentValue = '';
+            previousValue = '';
+            operator = '';
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            let displayText = currentValue || '0';
+            if (previousValue && operator) {
+                previous.textContent = `${previousValue} ${operator}`;
+            } else {
+                previous.textContent = '';
+            }
+            display.textContent = displayText;
+        }
+
+        function calculate() {
+            if (!currentValue || !previousValue || !operator) return;
+
+            try {
+                let result;
+                let prev = parseFloat(previousValue);
+                let curr = parseFloat(currentValue);
+
+                switch (operator) {
+                    case '+': result = prev + curr; break;
+                    case '-': result = prev - curr; break;
+                    case '×': result = prev * curr; break;
+                    case '÷': result = prev / curr; break;
+                    case '%': result = prev % curr; break;
+                    case '^': result = Math.pow(prev, curr); break;
+                    default: return;
+                }
+
+                result = Math.round(result * 100000000) / 100000000;
+
+                addHistory(`${previousValue} ${operator} ${currentValue} = ${result}`);
+
+                currentValue = String(result);
+                previousValue = '';
+                operator = '';
+                updateDisplay();
+            } catch (e) {
+                display.textContent = '오류';
+            }
+        }
+
+        function addHistory(item) {
+            history.unshift(item);
+            if (history.length > 20) history.pop();
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            historyList.innerHTML = history.map((item, index) => {
+                let [expression, result] = item.split(' = ');
+                return `<div class="history-item" onclick="useHistoryItem('${item}')">
+                    <div>${expression}</div>
+                    <div class="history-item-result">= ${result}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function useHistoryItem(item) {
+            let result = item.split(' = ')[1];
+            currentValue = result;
+            updateDisplay();
+        }
+
+        function clearHistory() {
+            history = [];
+            updateHistoryDisplay();
+        }
+
+        // 키보드 지원
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key === '.') appendNumber('.');
+            if (e.key === '+') appendOperator('+');
+            if (e.key === '-') appendOperator('-');
+            if (e.key === '*') { e.preventDefault(); appendOperator('×'); }
+            if (e.key === '/') { e.preventDefault(); appendOperator('÷'); }
+            if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
+            if (e.key === 'Backspace') currentValue = currentValue.slice(0, -1);
+            if (e.key === 'Escape') clearDisplay();
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
